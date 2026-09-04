@@ -177,6 +177,16 @@ h1{
   background:var(--accent);border-color:var(--accent);color:var(--bg);font-weight:500;
 }
 
+.scale{
+  display:flex;flex-wrap:wrap;gap:4px 16px;
+  margin-top:9px;font-size:11.5px;color:var(--ink-3);
+}
+.sc{display:inline-flex;align-items:center;gap:5px;white-space:nowrap}
+.sc b{font-size:11px;line-height:1}
+.sc-star{color:var(--star)}
+.sc-mid{color:var(--accent)}
+.sc-small{color:var(--line-2)}
+
 /* ---------- directory ---------- */
 #dir{margin-top:6px}
 .cat{margin-top:38px}
@@ -238,11 +248,45 @@ mark{background:var(--accent-soft);color:var(--ink);padding:0 1px;border-radius:
 #hint b{color:var(--accent);font-weight:700}
 #hint[hidden]{display:none}
 
+/* 네이버 버튼 — 목록에 없는 회사가 걸려올 때의 탈출구 */
+.nv{
+  flex:0 0 auto;display:inline-flex;align-items:center;gap:6px;
+  font-family:inherit;font-size:13px;font-weight:500;color:var(--ink);
+  background:var(--surface);
+  border:1px solid var(--line-2);border-radius:3px;
+  padding:9px 12px;cursor:pointer;white-space:nowrap;
+  transition:border-color .12s;
+}
+.nv:hover{border-color:#03C75A}
+.nv:focus-visible{outline:2px solid #03C75A;outline-offset:1px}
+.nv-n{
+  background:#03C75A;color:#fff;font-weight:700;
+  font-size:11px;line-height:1.45;padding:0 5px;border-radius:2px;
+}
+.nv-big{padding:11px 16px;font-size:14px}
+
 #empty{
-  display:none;padding:44px 0;text-align:center;color:var(--ink-3);
-  font-size:14px;font-weight:400;
+  display:none;padding:40px 0 8px;text-align:center;
 }
 #empty.on{display:block}
+.e-title{margin:0 0 6px;font-size:15px;color:var(--ink);font-weight:400}
+.e-title b{font-weight:700}
+.e-sub{margin:0 auto 18px;max-width:44ch;font-size:13px;color:var(--ink-3);line-height:1.6}
+#eBlocked{
+  margin:14px auto 0;max-width:40ch;font-size:12.5px;
+  color:var(--star);font-weight:500;
+}
+#eBlocked[hidden]{display:none}
+.e-btns{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+.e-auto{margin:16px 0 0}
+#autoToggle{
+  font-family:inherit;font-size:12px;color:var(--ink-3);
+  background:none;border:0;padding:4px 6px;cursor:pointer;
+  text-decoration:underline;text-underline-offset:3px;
+  text-decoration-color:var(--line-2);
+}
+#autoToggle:hover{color:var(--ink-2)}
+#autoToggle:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
 
 footer{
   margin-top:56px;padding-top:20px;border-top:1px solid var(--line);
@@ -258,6 +302,8 @@ footer{
   /* 검색창: iOS는 16px 미만이면 포커스할 때 화면을 확대해 버린다 */
   .toolbar{padding:10px 0 10px;margin-top:4px}
   #q{font-size:16px;padding:10px 13px}
+  .nv{padding:10px 11px;font-size:12.5px}
+  .searchrow{gap:7px}
   .searchrow{margin-bottom:9px}
 
   /* 업종 버튼: 줄바꿈 대신 가로로 밀어 보게 해서 상단이 화면을 덜 먹게 */
@@ -291,6 +337,7 @@ footer{
 
 @media (max-width:400px){
   h1{font-size:26px}
+  #count{display:none}
   .wrap{padding:0 14px 72px}
   .chips{margin:0 -14px;padding:0 14px 2px}
   .tag{font-size:10.5px;padding:2px 6px}
@@ -320,15 +367,38 @@ footer{
 
   <div class="toolbar">
     <div class="searchrow">
-      <input id="q" type="search" placeholder="회사 이름 검색 — 오타 · 초성 · 한글읽기 다 됩니다 (예: 코스코, ㅍㅅㅋ, 지에스건설)" autocomplete="off" aria-label="회사 검색">
+      <input id="q" type="search" placeholder="회사 이름 검색 — 오타 · 초성 · 한글읽기 다 됩니다 (예: 코스코, ㅍㅅㅋ, 지에스건설)" autocomplete="off" spellcheck="false" aria-label="회사 검색">
+      <button id="naver" class="nv" type="button" title="네이버에서 이 이름 검색 (새 탭)">
+        <span class="nv-n">N</span>검색
+      </button>
       <span id="count"></span>
     </div>
     <div class="chips" id="chips"></div>
+    <div class="scale">
+      <span class="sc"><b class="sc-star">★</b> 대기업집단</span>
+      <span class="sc"><b class="sc-mid">●</b> 목록에 있음 = 중견 이상</span>
+      <span class="sc"><b class="sc-small">○</b> 목록에 없음 = 중소 가능성</span>
+    </div>
   </div>
 
   <p id="hint" hidden></p>
   <main id="dir"></main>
-  <p id="empty">검색 결과가 없습니다. 사명 일부만 넣거나 업종어(예: 레미콘, 물류, 제약)로 다시 찾아보세요.</p>
+  <div id="empty">
+    <p class="e-title">목록에 <b id="eTerm"></b><span id="ePart"></span> 없습니다.</p>
+    <p class="e-sub">이 표에는 <b>대기업집단 소속사 · 중견기업 · 공공기관</b>만 실려 있습니다.
+      여기 없다면 <b>중소기업일 가능성이 높습니다.</b>
+      다만 신설 법인이나 외국계 지사, 제가 빠뜨린 회사일 수도 있으니 아래에서 확인하세요.</p>
+    <div class="e-btns">
+      <button id="naverEmpty" class="nv nv-big" type="button">
+        <span class="nv-n">N</span>네이버에서 검색하기
+      </button>
+      <button id="naverSize" class="nv nv-big" type="button" title="매출·직원수로 규모를 가늠">
+        <span class="nv-n">N</span>기업 규모 확인
+      </button>
+    </div>
+    <p id="eBlocked" hidden>브라우저가 새 창을 막았습니다. 위 버튼을 눌러 주세요.</p>
+    <p class="e-auto"><button id="autoToggle" type="button"></button></p>
+  </div>
 
   <section class="block ref">
     <div class="block-head">
@@ -347,7 +417,7 @@ footer{
   </section>
 
   <footer>
-    이름 옆의 <b>\u2605</b>는 공정거래위원회가 지정하는 대기업집단(자산 5조 이상) 소속이라는 표시입니다. 지정 명단은 해마다 5월에 바뀌고, 외국계 회사와 공공기관은 지정 대상이 아니어서 규모가 커도 별표가 없습니다. 그룹 표기는 최대주주·계열 기준이며 지분 매각과 사명 변경이 잦은 영역입니다.
+    이름 옆의 <b>\u2605</b>는 공정거래위원회가 지정하는 대기업집단(자산 5조 이상) 소속이라는 표시입니다. 이 표에 실린 기업은 대기업집단 소속이거나 중견기업 규모여서, <b>★가 없어도 목록에 있으면 중견 이상</b>으로 보시면 대체로 맞습니다. 반대로 <b>목록에 없으면 중소기업일 가능성이 높습니다.</b> 다만 중소·중견·대기업 구분은 업종별 매출·자산 기준으로 정해지고 확정 판정은 중소기업 확인서로만 가능하므로, 이 표의 표시는 응대용 참고이지 공식 분류가 아닙니다. 지정 명단은 해마다 5월에 바뀌고, 외국계 회사와 공공기관은 지정 대상이 아니어서 규모가 커도 별표가 없습니다. 그룹 표기는 최대주주·계열 기준이며 지분 매각과 사명 변경이 잦은 영역입니다.
     특히 건설·환경 업계는 인수합병이 빈번해, 통화 중 계열 관계를 단정해 말하기보다 “확인 후 안내드리겠다”가 안전합니다.
     태그 중 <b>발주처</b>는 공사를 맡기는 쪽, <b>동종사</b>는 같은 건설·환경 사업자, <b>자재·설비</b>는 현장에 물건을 대는 쪽,
     <b>협력·용역</b>은 하도급·서비스, <b>공공·기관</b>은 발주 및 인허가·감독 기관을 뜻합니다.
@@ -1382,6 +1452,7 @@ function apply(){
   hintEl.hidden = true;
 
   if(!term){
+    clearTimeout(autoTimer); lastAuto = ""; blockedEl.hidden = true;
     const n = paint(()=>true);
     countEl.textContent = n + " / " + total;
     emptyEl.classList.remove("on");
@@ -1425,7 +1496,70 @@ function apply(){
 
   countEl.textContent = shown + " / " + total;
   emptyEl.classList.toggle("on", shown === 0);
+  scheduleAuto(raw, shown);
+  if(shown === 0){
+    document.getElementById("eTerm").textContent = "\u2018" + raw + "\u2019";
+    document.getElementById("ePart").textContent = subjectParticle(raw);
+  }
 }
+
+/* 끝 글자 받침에 따라 조사를 고른다. 한빛테크윈'이' / 코스코'가' */
+function subjectParticle(w){
+  const c = w.charCodeAt(w.length - 1) - 0xAC00;
+  if(c < 0 || c > 11171) return "이(가)";   /* 영문·숫자로 끝나면 판단하지 않는다 */
+  return (c % 28) ? "이" : "가";
+}
+
+/* 목록에 없는 회사는 네이버로 넘긴다. iframe 삽입은 네이버가 막아 두어 새 탭으로 연다. */
+function naverSearch(suffix){
+  const base = q.value.trim();
+  if(!base){ q.focus(); return null; }
+  const term = suffix ? base + " " + suffix : base;
+  /* windowFeatures 에 noopener 를 주면 항상 null 이 돌아와 차단 여부를 알 수 없다.
+     그래서 연 뒤에 opener 를 직접 끊고, 창 참조는 그대로 돌려준다. */
+  const w = window.open("https://search.naver.com/search.naver?query=" + encodeURIComponent(term),
+                        "_blank");
+  if(w){ try{ w.opener = null; }catch(e){} }
+  return w;
+}
+const blockedEl = document.getElementById("eBlocked");
+const autoBtn = document.getElementById("autoToggle");
+
+document.getElementById("naver").addEventListener("click", ()=>{ blockedEl.hidden = true; naverSearch(); });
+document.getElementById("naverEmpty").addEventListener("click", ()=>{ blockedEl.hidden = true; naverSearch(); });
+/* 네이버 기업정보 카드에 매출·직원수가 떠서 규모를 가늠할 수 있다 */
+document.getElementById("naverSize").addEventListener("click", ()=>{ blockedEl.hidden = true; naverSearch("기업정보 매출액"); });
+
+/* 목록에 없으면 잠깐 기다렸다가 알아서 네이버를 띄운다.
+   타이핑 도중에 뜨지 않도록 입력이 멈춘 뒤에 열고, 같은 검색어로는 한 번만 연다. */
+let autoTimer = 0, lastAuto = "", autoOn = true;
+try{ autoOn = localStorage.getItem("nvAuto") !== "0"; }catch(e){}
+
+function paintAutoBtn(){
+  autoBtn.textContent = autoOn ? "자동으로 열리는 게 번거로우면 끄기" : "자동 열기 다시 켜기";
+}
+paintAutoBtn();
+autoBtn.addEventListener("click", ()=>{
+  autoOn = !autoOn;
+  try{ localStorage.setItem("nvAuto", autoOn ? "1" : "0"); }catch(e){}
+  paintAutoBtn();
+});
+
+function scheduleAuto(raw, shown){
+  clearTimeout(autoTimer);
+  if(shown !== 0){ lastAuto = ""; return; }
+  if(!autoOn || raw.length < 2 || raw === lastAuto) return;
+  autoTimer = setTimeout(()=>{
+    if(!emptyEl.classList.contains("on") || q.value.trim() !== raw) return;
+    lastAuto = raw;
+    blockedEl.hidden = !!naverSearch();   /* 인자 없이 = 회사명 그대로 */
+  }, 1100);
+}
+
+/* 엔터를 치면 결과가 없을 때 곧바로 네이버로 */
+q.addEventListener("keydown", e=>{
+  if(e.key === "Enter" && emptyEl.classList.contains("on")) naverSearch();
+});
 
 q.addEventListener("input", apply);
 chips.addEventListener("click", e=>{
